@@ -21,11 +21,11 @@ RUN apt-get update && apt-get install -y \
   libgl1-mesa-dev libgtk2.0-dev libatlas-base-dev \
   tesseract-ocr tesseract-ocr-all \
   libopenblas-dev cmake \
-  && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
   && rm -rf /var/lib/apt/lists/*
 
 # set locale
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+RUN localedef -i ru_RU -c -f UTF-8 -A /usr/share/locale/locale.alias ru_RU.UTF-8
 ENV LANGUAGE en_US.utf8
 ENV LANG en_US.utf8
 ENV LC_ALL en_US.utf8
@@ -33,7 +33,7 @@ ENV LC_ALL en_US.utf8
 ENV GRAMPS_API_CONFIG=/app/config/config.cfg
 
 # limit pytorch to 1 thread
-ENV OMP_NUM_THREADS=1
+##ENV OMP_NUM_THREADS=1
 
 # create directories
 RUN mkdir /app/src &&  mkdir /app/config && touch /app/config/config.cfg
@@ -72,31 +72,31 @@ RUN python3 -m pip install --break-system-packages --no-cache-dir --extra-index-
     gunicorn
 
 # Install PyTorch based on architecture
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" != "armv7l" ]; then \
-        # PyTorch and opencv not supported on armv7l
-        python3 -m pip install --break-system-packages --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch; \
-        python3 -m pip install --break-system-packages --no-cache-dir --extra-index-url https://www.piwheels.org/simple \
-        opencv-python opencv-contrib-python; \
-    fi
-
+##RUN ARCH=$(uname -m) && \
+##    if [ "$ARCH" != "armv7l" ]; then \
+##        # PyTorch and opencv not supported on armv7l
+##        python3 -m pip install --break-system-packages --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch; \
+##        python3 -m pip install --break-system-packages --no-cache-dir --extra-index-url https://www.piwheels.org/simple \
+##        opencv-python opencv-contrib-python; \
+##    fi
+##
 # copy package source and install
 COPY . /app/src
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "armv7l" ]; then \
-        python3 -m pip install --break-system-packages --no-cache-dir /app/src; \
-    else \
-        python3 -m pip install --break-system-packages --no-cache-dir --extra-index-url https://www.piwheels.org/simple \
-        /app/src[ai]; \
-    fi
-
+##RUN ARCH=$(uname -m) && \
+##    if [ "$ARCH" = "armv7l" ]; then \
+RUN        python3 -m pip install --break-system-packages --no-cache-dir /app/src
+##    else \
+##        python3 -m pip install --break-system-packages --no-cache-dir --extra-index-url https://www.piwheels.org/simple \
+##        /app/src[ai]; \
+##    fi
+##
 # download and cache sentence transformer model
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" != "armv7l" ]; then \
-        python3 -c "from sentence_transformers import SentenceTransformer; \
-model = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v2')"; \
-    fi
-
+##RUN ARCH=$(uname -m) && \
+##    if [ "$ARCH" != "armv7l" ]; then \
+##        python3 -c "from sentence_transformers import SentenceTransformer; \
+##model = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v2')"; \
+##    fi
+##
 EXPOSE 5000
 
 COPY docker-entrypoint.sh /
