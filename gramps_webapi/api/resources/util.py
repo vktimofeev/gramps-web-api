@@ -453,7 +453,11 @@ def get_place_profile_for_handle(
 
 
 def get_person_profile_for_object(
-    db_handle: DbReadBase, person: Person, args: list, locale: GrampsLocale = glocale
+    db_handle: DbReadBase,
+    person: Person,
+    args: list,
+    locale: GrampsLocale = glocale,
+    name_format: str = None,
 ) -> Person:
     """Get person profile given a Person."""
     options = []
@@ -485,7 +489,12 @@ def get_person_profile_for_object(
         "birth": birth,
         "death": death,
         #        "name_given": name_display.display_given(person),
-        "name_given": name_display.format_str(person.get_primary_name(), "%f %1y"),
+        # "name_given": name_display.format_str(person.get_primary_name(), "%f %1y"),
+        "name_given": (
+            name_display.format_str(person.get_primary_name(), name_format)
+            if name_format
+            else name_display.display_given(person)
+        ),
         #        "name_surname": person.primary_name.get_surname(),
         "name_surname": name_display.primary_surname(person.get_primary_name()),
         "name_suffix": person.primary_name.get_suffix(),
