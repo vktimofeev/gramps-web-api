@@ -488,15 +488,13 @@ def get_person_profile_for_object(
         "sex": get_sex_profile(person),
         "birth": birth,
         "death": death,
-        #        "name_given": name_display.display_given(person),
-        # "name_given": name_display.format_str(person.get_primary_name(), "%f %1y"),
-        "name_given": (
+        "name_given": name_display.display_given(person),
+        "name_surname": person.primary_name.get_surname(),
+        "name_display": (
             name_display.format_str(person.get_primary_name(), name_format)
             if name_format
-            else name_display.display_given(person)
+            else name_display.display(person)
         ),
-        #        "name_surname": person.primary_name.get_surname(),
-        "name_surname": name_display.primary_surname(person.get_primary_name()),
         "name_suffix": person.primary_name.get_suffix(),
     }
     if "all" in args or "span" in args:
