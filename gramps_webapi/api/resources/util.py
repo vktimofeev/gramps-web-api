@@ -464,6 +464,8 @@ def get_person_profile_for_object(
     if "all" in args or "ratings" in args:
         options.append("ratings")
     name_display = NameDisplay(xlocale=locale)
+    name_display.set_name_format(db_handle.name_formats)
+    name_display.set_default_format(-3)
     birth, birth_event = get_birth_profile(
         db_handle, person, args=options, locale=locale
     )
