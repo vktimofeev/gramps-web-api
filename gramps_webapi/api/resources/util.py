@@ -38,7 +38,7 @@ from gramps.gen.db import KEY_TO_CLASS_MAP, DbTxn
 from gramps.gen.db.base import DbReadBase, DbWriteBase
 from gramps.gen.db.dbconst import TXNADD, TXNDEL, TXNUPD
 from gramps.gen.db.utils import import_as_dict
-from gramps.gen.display.name import displayer as name_displayer
+from gramps.gen.display.name import NameDisplay
 from gramps.gen.display.place import PlaceDisplay
 from gramps.gen.errors import HandleError
 from gramps.gen.lib import (
