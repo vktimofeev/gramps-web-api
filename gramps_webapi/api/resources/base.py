@@ -98,7 +98,10 @@ class GrampsObjectResourceHelper(GrampsJSONEncoder):
                 # create profile if doesn't exist
                 obj.profile = {}
             obj.profile["references"] = get_reference_profile_for_object(
-                self.db_handle, obj, locale=locale
+                self.db_handle,
+                obj,
+                locale=locale,
+                name_format=args.get("name_format"),
             )
         return obj
 
@@ -207,6 +210,7 @@ class GrampsObjectResource(GrampsObjectResourceHelper, Resource):
             "locale": fields.Str(
                 load_default=None, validate=validate.Length(min=1, max=5)
             ),
+            "name_format": fields.Str(validate=validate.Length(min=1)),
             "profile": fields.DelimitedList(
                 fields.Str(validate=validate.Length(min=1)),
                 validate=validate.ContainsOnly(
