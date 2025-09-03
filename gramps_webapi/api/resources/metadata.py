@@ -27,11 +27,14 @@ import object_ql as oql
 import pytesseract
 import sifts
 from flask import Response, current_app
-from gramps.gen.const import ENV, GRAMPS_LOCALE
+from gramps.gen.config import config as gramps_config
+from gramps.gen.const import ENV, GRAMPS_LOCALE, _
 from gramps.gen.db.base import DbReadBase
 from gramps.gen.db.generic import DbGeneric
 from gramps.gen.db.utils import get_dbid_from_path
+from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.utils.grampslocale import INCOMPLETE_TRANSLATIONS
+from gramps.gen.lib.name import Name
 from webargs import fields
 
 from gramps_webapi.const import TREE_MULTI, VERSION
@@ -43,6 +46,16 @@ from ..search import get_search_indexer, get_semantic_search_indexer
 from ..util import get_db_handle, get_tree_from_jwt_or_fail, use_args
 from . import ProtectedResource
 from .emit import GrampsJSONEncoder
+
+
+default_name_format = gramps_config.get("preferences.name-format")
+if default_name_format == 0:
+    default_name_format = Name.LNFN
+    gramps_config.set("preferences.name-format", self.default_format)
+    # if only one surname, see if pa/ma should be considered as
+    # 'the' surname.
+PAT_AS_SURN = gramps_config.get("preferences.patronimic-surname")
+# config.connect("preferences.patronimic-surname", self.change_pa_sur)
 
 
 def get_dbid_from_tree_id(tree_id: str) -> str:
@@ -136,6 +149,19 @@ class MetadataResource(ProtectedResource, GrampsJSONEncoder):
                     GRAMPS_LOCALE.language[0] in INCOMPLETE_TRANSLATIONS
                 ),
             },
+            "name_formats": [
+                {
+                    "number": number,
+                    "name": name,
+                    "format": format_string,
+                    "active": active,
+                }
+                for number, name, format_string, active in name_displayer.get_name_format(
+                    also_default=False
+                )
+            ],
+            "name_format_default": name_displayer.get_default_format(),
+            "name_format_patronymic_surname": PAT_AS_SURN,
             "object_counts": {
                 "people": db_handle.get_number_of_people(),
                 "families": db_handle.get_number_of_families(),
