@@ -38,6 +38,7 @@ from .util import (
 )
 
 
+
 class PersonResourceHelper(GrampsObjectResourceHelper):
     """Person resource helper."""
 

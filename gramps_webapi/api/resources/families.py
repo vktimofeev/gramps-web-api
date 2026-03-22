@@ -42,6 +42,7 @@ from .util import (
 from gramps_webapi.types import ResponseReturnValue
 
 
+
 class FamilyResourceHelper(GrampsObjectResourceHelper):
     """Family resource helper."""
 
