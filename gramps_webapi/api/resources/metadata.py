@@ -32,20 +32,39 @@ from gramps.gen.db.base import DbReadBase
 from gramps.gen.db.generic import DbGeneric
 from gramps.gen.db.utils import get_dbid_from_path
 from gramps.gen.utils.grampslocale import INCOMPLETE_TRANSLATIONS
-from marshmallow import Schema
+from marshmallow import Schema, RAISE
 from webargs import fields
 
 from gramps_webapi.const import TREE_MULTI, VERSION
 
-from ...auth.const import PERM_VIEW_PRIVATE
+from ...auth.const import PERM_EDIT_TREE, PERM_VIEW_PRIVATE
 from ...dbmanager import WebDbManager
-from ..auth import has_permissions
+from ..auth import has_permissions, require_permissions
 from ..blueprint import api_blueprint
 from ..search import get_search_indexer, get_semantic_search_indexer
 from ..util import get_db_handle, get_tree_from_jwt_or_fail
 from . import ProtectedResource
 from .emit import GrampsJSONEncoder
-from .schemas import MetadataSchema
+from .schemas import MetadataSchema, ResearcherSchema
+
+
+class ResearcherUpdateSchema(Schema):
+    """Request body schema for PUT /metadata/researcher/."""
+
+    class Meta:
+        unknown = RAISE
+
+    addr = fields.Str(metadata={"description": "Address."})
+    city = fields.Str(metadata={"description": "City."})
+    country = fields.Str(metadata={"description": "Country."})
+    county = fields.Str(metadata={"description": "County."})
+    email = fields.Str(metadata={"description": "Email address."})
+    locality = fields.Str(metadata={"description": "Locality."})
+    name = fields.Str(metadata={"description": "Name of the researcher."})
+    phone = fields.Str(metadata={"description": "Phone number."})
+    postal = fields.Str(metadata={"description": "Postal code."})
+    state = fields.Str(metadata={"description": "State."})
+    street = fields.Str(metadata={"description": "Street address."})
 
 
 def get_dbid_from_tree_id(tree_id: str) -> str:
@@ -187,3 +206,49 @@ class MetadataResource(ProtectedResource, GrampsJSONEncoder):
         if isinstance(db_handle, DbGeneric):
             result["database"]["actual_schema"] = db_handle.get_schema_version()
         return self.response(200, result)
+
+
+class MetadataResearcherResource(ProtectedResource, GrampsJSONEncoder):
+    """Researcher metadata resource."""
+
+    @property
+    def db_handle(self) -> DbReadBase:
+        """Get the database instance."""
+        return get_db_handle()
+
+    @api_blueprint.response(200, ResearcherSchema())
+    def get(self) -> Response:
+        """Get the researcher information."""
+        return self.response(200, self.db_handle.get_researcher())
+
+    @api_blueprint.response(200, ResearcherSchema())
+    @api_blueprint.arguments(ResearcherUpdateSchema, location="json")
+    def put(self, args) -> Response:
+        """Update the researcher information."""
+        require_permissions([PERM_EDIT_TREE])
+        db_handle = get_db_handle(readonly=False)
+        researcher = db_handle.get_researcher()
+        if "name" in args:
+            researcher.set_name(args["name"])
+        if "addr" in args:
+            researcher.set_address(args["addr"])
+        if "locality" in args:
+            researcher.set_locality(args["locality"])
+        if "city" in args:
+            researcher.set_city(args["city"])
+        if "county" in args:
+            researcher.set_county(args["county"])
+        if "state" in args:
+            researcher.set_state(args["state"])
+        if "country" in args:
+            researcher.set_country(args["country"])
+        if "postal" in args:
+            researcher.set_postal_code(args["postal"])
+        if "phone" in args:
+            researcher.set_phone(args["phone"])
+        if "email" in args:
+            researcher.set_email(args["email"])
+        if "street" in args:
+            researcher.set_street(args["street"])
+        db_handle.set_researcher(researcher)
+        return self.response(200, db_handle.get_researcher())
