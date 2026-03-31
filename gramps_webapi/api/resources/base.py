@@ -238,6 +238,15 @@ class GrampsObjectQueryArgs(Schema):
             "description": "Format string for name display (see gramps.gen.display.name for syntax)."
         },
     )
+    precision = fields.Integer(
+        load_default=3,
+        validate=validate.Range(min=1, max=3),
+        metadata={
+            "description": "Number of significant time components in age/span"
+            " strings when profile is used: 1=year only, 2=year+month,"
+            " 3=year+month+day."
+        },
+    )
     profile = fields.DelimitedList(
         fields.Str(validate=validate.Length(min=1)),
         validate=validate.ContainsOnly(
@@ -450,6 +459,15 @@ class GrampsObjectsQueryArgs(Schema):
         load_default=20,
         validate=validate.Range(min=1),
         metadata={"description": "Number of items per page when pagination is active."},
+    )
+    precision = fields.Integer(
+        load_default=3,
+        validate=validate.Range(min=1, max=3),
+        metadata={
+            "description": "Number of significant time components in age/span"
+            " strings when profile is used: 1=year only, 2=year+month,"
+            " 3=year+month+day."
+        },
     )
     profile = fields.DelimitedList(
         fields.Str(validate=validate.Length(min=1)),
