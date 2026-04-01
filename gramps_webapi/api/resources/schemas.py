@@ -397,7 +397,7 @@ class PersonProfileSchema(_Base):
         metadata={"description": "References to this person from other objects."},
     )
     sex = fields.Str(
-        metadata={"description": "Sex of the person ('M', 'F', 'O', or 'U')."},
+        metadata={"description": "Sex of the person ('M', 'F', 'X', or 'U')."},
     )
 
 
@@ -2223,7 +2223,7 @@ class TimelinePersonProfileSchema(_Base):
         metadata={"description": "Relationship to the anchor person."},
     )
     sex = fields.Str(
-        metadata={"description": "Sex identifier ('M', 'F', 'O', or 'U')."},
+        metadata={"description": "Sex identifier ('M', 'F', 'X', or 'U')."},
     )
 
 

@@ -78,7 +78,7 @@ API_PREFIX = "/api"
 SEX_MALE = "M"
 SEX_FEMALE = "F"
 SEX_UNKNOWN = "U"
-SEX_OTHER = "O"
+SEX_OTHER = "X"
 
 # Primary Gramps objects
 # This is used to identify the only ones that the keys and skipkeys
